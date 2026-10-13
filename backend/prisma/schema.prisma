@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  password_hash String
+  role          String          @default("user")
+  created_at    String          @default("datetime('now')")
+  categories    categories[]
+  products      products[]
+  sales         sales[]
+  notifications notifications[]
+  billing_subscriptions billing_subscriptions[]
+}
+
+model billing_subscriptions {
+  id                       Int      @id @default(autoincrement())
+  user_id                  Int
+  provider_subscription_id String?  @unique
+  checkout_reference       String   @unique
+  status                   String   @default("inactive")
+  current_period_end       String?
+  created_at               String   @default("datetime('now')")
+  updated_at               String   @default("datetime('now')")
+  user                     users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, created_at])
+}
+
+model billing_webhook_events {
+  id          Int    @id @default(autoincrement())
+  event_id    String @unique
+  event_type  String
+  received_at String @default("datetime('now')")
+}
+
+model password_reset_otps {
+  id               Int     @id @default(autoincrement())
+  email            String  @unique
+  code_hash        String?
+  reset_token_hash String?
+  expires_at       String
+  attempts         Int     @default(0)
+  created_at       String  @default("datetime('now')")
+}
+
+model categories {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique(map: "sqlite_autoindex_categories_1")
+  created_at String     @default("datetime('now')")
+  owner_id   Int
+  owner      users      @relation(fields: [owner_id], references: [id])
+  products   products[]
+}
+
+model notifications {
+  id         Int       @id @default(autoincrement())
+  product_id Int?
+  type       String
+  message    String
+  is_read    Int       @default(0)
+  created_at String    @default("datetime('now')")
+  owner_id   Int
+  owner      users     @relation(fields: [owner_id], references: [id])
+  products   products? @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([is_read], map: "idx_notifications_unread")
+}
+
+model products {
+  id            Int             @id @default(autoincrement())
+  sku           String          @unique(map: "sqlite_autoindex_products_1")
+  name          String
+  category_id   Int?
+  cost_price    Float           @default(0)
+  sale_price    Float           @default(0)
+  current_stock Int             @default(0)
+  reorder_level Int             @default(5)
+  created_at    String          @default("datetime('now')")
+  updated_at    String          @default("datetime('now')")
+  owner_id      Int
+  owner         users           @relation(fields: [owner_id], references: [id])
+  notifications notifications[]
+  categories    categories?     @relation(fields: [category_id], references: [id], onUpdate: NoAction)
+  sales         sales[]
+  stock_logs    stock_logs[]
+
+  @@index([category_id], map: "idx_products_category")
+}
+
+model sales {
+  id                 Int      @id @default(autoincrement())
+  product_id         Int
+  quantity           Int
+  sale_price         Float
+  cost_price_at_sale Float    @default(0)
+  created_at         String   @default("datetime('now')")
+  owner_id           Int
+  owner              users    @relation(fields: [owner_id], references: [id])
+  products           products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([product_id], map: "idx_sales_product")
+}
+
+model stock_logs {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  change     Int
+  reason     String
+  created_at String   @default("datetime('now')")
+  products   products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([product_id], map: "idx_stock_logs_product")
+}

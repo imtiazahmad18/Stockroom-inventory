@@ -1,0 +1,26 @@
+{
+  "name": "inventory-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch-path=./server.js --watch-path=./stockService.js --watch-path=./chatTools.js --watch-path=./agent.js --watch-path=./ai.mjs --watch-path=./forecastService.js --watch-path=./analyticsService.js --watch-path=./backgroundAgent.js --watch-path=./routes server.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "node-tls-client": "^2.1.0",
+    "nodemailer": "^10.1.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3"
+  }
+}

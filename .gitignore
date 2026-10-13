@@ -1,0 +1,23 @@
+# dependencies
+**/node_modules/
+
+# env/secrets
+.env
+.env.*
+**/.env
+**/.env.*
+
+# local database files
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+
+# build output
+**/dist/
+**/.vite/
+
+# OS/editor
+.DS_Store
+Thumbs.db
